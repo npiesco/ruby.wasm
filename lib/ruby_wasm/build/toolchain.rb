@@ -193,7 +193,7 @@ module RubyWasm
   end
 
   class Binaryen
-    def initialize(build_dir: nil, binaryen_version: 108)
+    def initialize(build_dir: nil, binaryen_version: 130)
       @wasm_opt_path = Toolchain.find_path("wasm-opt")
       @need_fetch_binaryen = @wasm_opt_path.nil?
       if @need_fetch_binaryen
