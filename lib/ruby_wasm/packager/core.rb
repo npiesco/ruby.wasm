@@ -253,6 +253,7 @@ class RubyWasm::Packager::Core
           -g
           --pass-arg=asyncify-relocatable
           --enable-exception-handling
+          --emit-exnref
         ]
         build.crossruby.ldflags = %w[
           -Xlinker
@@ -339,6 +340,7 @@ class RubyWasm::Packager::Core
           -g
           --pass-arg=asyncify-ignore-imports
           --enable-exception-handling
+          --emit-exnref
         ]
         build.crossruby.ldflags = %w[
           -Xlinker
