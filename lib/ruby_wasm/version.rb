@@ -1,3 +1,3 @@
 module RubyWasm
-  VERSION = "2.9.4.2"
+  VERSION = "2.9.4.3"
 end
