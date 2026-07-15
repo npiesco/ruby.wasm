@@ -5,6 +5,15 @@ module RubyWasm
   class CrossRubyExtProduct < BuildProduct
     attr_reader :name
 
+    def self.append_source_cache_key(digest, name, srcdir)
+      digest << name
+      Dir.glob("#{srcdir}/**/*", File::FNM_DOTMATCH).sort.each do |path|
+        next if File.directory?(path)
+        digest << path.delete_prefix("#{srcdir}/")
+        digest << File.binread(path)
+      end
+    end
+
     def initialize(srcdir, toolchain, features:, ext_relative_path: nil)
       @srcdir, @toolchain = srcdir, toolchain
       # ext_relative_path is relative path from build dir
@@ -135,15 +144,7 @@ module RubyWasm
     end
 
     def cache_key(digest)
-      digest << @name
-      # Compute hash value of files under srcdir
-      Dir
-        .glob("#{@srcdir}/**/*", File::FNM_DOTMATCH)
-        .each do |f|
-          next if File.directory?(f)
-          digest << f
-          digest << File.read(f)
-        end
+      self.class.append_source_cache_key(digest, @name, @srcdir)
     end
   end
 

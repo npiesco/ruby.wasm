@@ -249,6 +249,7 @@ class RubyWasm::Packager::Core
       if @packager.full_build_options[:target] != "wasm32-unknown-emscripten"
         build.crossruby.debugflags = %w[-g]
         build.crossruby.wasmoptflags = %w[
+          -O3
           -g
           --pass-arg=asyncify-relocatable
           --enable-exception-handling
@@ -335,6 +336,7 @@ class RubyWasm::Packager::Core
         # We assume that imported functions provided through WASI will not change
         # asyncify state, so we ignore them.
         build.crossruby.wasmoptflags = %w[
+          -O3
           -g
           --pass-arg=asyncify-ignore-imports
           --enable-exception-handling
@@ -404,7 +406,18 @@ class RubyWasm::Packager::Core
       base = "ruby-#{src_channel}-#{target_triplet}#{options[:suffix]}"
       exts = specs_with_extensions.sort
       hash = ::Digest::MD5.new
-      specs_with_extensions.each { |spec, _| hash << spec.full_name }
+      exts.each do |spec, extensions|
+        extensions.sort.each do |ext|
+          ext_feature = File.dirname(ext)
+          ext_srcdir = File.join(spec.full_gem_path, ext_feature)
+          ext_name = File.join(spec.full_name, ext_feature)
+          RubyWasm::CrossRubyExtProduct.append_source_cache_key(
+            hash,
+            ext_name,
+            ext_srcdir
+          )
+        end
+      end
       if enabled = @packager.features.support_component_model?
         hash << enabled.to_s
       end
