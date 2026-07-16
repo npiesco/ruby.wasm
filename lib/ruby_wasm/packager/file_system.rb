@@ -62,7 +62,10 @@ class RubyWasm::Packager::FileSystem
       RubyWasm.logger.debug "Packaging gem file: #{relative}"
       dest = File.join(@dest_dir, relative)
       FileUtils.mkdir_p File.dirname(dest)
-      FileUtils.cp_r source, dest
+      # `spec.files` for path gems may contain both a parent directory and its
+      # descendants. Copy into the exact destination so a later directory
+      # entry merges there instead of nesting another basename below it.
+      FileUtils.copy_entry source, dest
     end
 
     setup_rb_path = File.join(bundle_relative_path, "setup.rb")
