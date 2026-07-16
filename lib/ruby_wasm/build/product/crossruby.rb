@@ -121,6 +121,8 @@ module RubyWasm
         "-e",
         %Q($0="#{@srcdir}/extconf.rb"),
         "-e",
+        'if (flags = ENV["RUBY_WASM_APPEND_CXXFLAGS"]) && !flags.empty?; require "mkmf"; $CXXFLAGS = [$CXXFLAGS, flags].reject(&:empty?).join(" "); end',
+        "-e",
         %Q(require_relative "#{@srcdir}/extconf.rb"),
         # HACK: extract "$target" from extconf.rb to get a full target name
         # like "cgi/escape" instead of "escape"
