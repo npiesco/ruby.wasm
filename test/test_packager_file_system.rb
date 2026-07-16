@@ -10,6 +10,7 @@ class TestPackagerFileSystem < Test::Unit::TestCase
       lib_dir = File.join(gem_dir, "lib", "example", "config")
       FileUtils.mkdir_p(lib_dir)
       File.write(File.join(lib_dir, "value.rb"), "module Example; Value = :ok; end\n")
+      File.symlink("value.rb", File.join(lib_dir, "current.rb"))
       File.write(
         File.join(gem_dir, "example.gemspec"),
         <<~GEMSPEC
@@ -21,6 +22,7 @@ class TestPackagerFileSystem < Test::Unit::TestCase
             spec.files = [
               "lib/example",
               "lib/example/config",
+              "lib/example/config/current.rb",
               "lib/example/config/value.rb"
             ]
             spec.require_paths = ["lib"]
@@ -45,6 +47,9 @@ class TestPackagerFileSystem < Test::Unit::TestCase
 
       packaged_gem = File.join(destination, "bundle", "gems", "example-0.1.0")
       assert_path_exist(File.join(packaged_gem, "lib", "example", "config", "value.rb"))
+      packaged_link = File.join(packaged_gem, "lib", "example", "config", "current.rb")
+      assert_true(File.symlink?(packaged_link))
+      assert_equal("value.rb", File.readlink(packaged_link))
       assert_path_not_exist(File.join(packaged_gem, "lib", "example", "config", "config"))
     end
   end

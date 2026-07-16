@@ -65,7 +65,8 @@ class RubyWasm::Packager::FileSystem
       # `spec.files` for path gems may contain both a parent directory and its
       # descendants. Copy into the exact destination so a later directory
       # entry merges there instead of nesting another basename below it.
-      FileUtils.copy_entry source, dest
+      # Replacing an existing leaf also makes overlapping symlink entries safe.
+      FileUtils.copy_entry source, dest, false, false, true
     end
 
     setup_rb_path = File.join(bundle_relative_path, "setup.rb")
